@@ -1,5 +1,10 @@
-﻿using Microsoft.AspNetCore;
+﻿using System;
+using System.Net;
+using System.Net.Sockets;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Unosquare.RaspberryIO;
+using Unosquare.RaspberryIO.Camera;
 
 namespace LedApi
 {

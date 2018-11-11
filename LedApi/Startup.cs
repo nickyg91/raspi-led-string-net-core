@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using LedApi.Classes;
 using Microsoft.AspNetCore.Builder;
@@ -12,6 +14,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Unosquare.RaspberryIO;
+using Unosquare.RaspberryIO.Camera;
 
 namespace LedApi
 {
@@ -47,7 +51,7 @@ namespace LedApi
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
-
+            app.UseFileServer();
             //app.UseHttpsRedirection();
             app.UseMvc();
         }
