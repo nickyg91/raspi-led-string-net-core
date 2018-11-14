@@ -58,21 +58,27 @@ namespace LedApi
                 KeepAliveInterval = TimeSpan.FromSeconds(120),
                 ReceiveBufferSize = 4 * 1024
             };
-            app.UseFileServer();
             app.UseWebSockets(webSocketOptions);
             app.Use(async (http, next) =>
             {
-                if (http.WebSockets.IsWebSocketRequest)
+                if (http.Request.Path == "/ws")
                 {
-                    var token = CancellationToken.None;
-                    var buffer = new byte[4096];
-                    var webSocket = await http.WebSockets.AcceptWebSocketAsync();
-                    var client = new TcpClient("192.168.1.152", 8080);
-                    var stream = client.GetStream();
-                    while (webSocket.State == WebSocketState.Open)
+                    if (http.WebSockets.IsWebSocketRequest)
                     {
-                        await stream.ReadAsync(buffer);
-                        await webSocket.SendAsync(buffer, WebSocketMessageType.Binary, true, token);
+                        var token = CancellationToken.None;
+                        var buffer = new byte[4096];
+                        var webSocket = await http.WebSockets.AcceptWebSocketAsync();
+                        var client = new TcpClient("192.168.1.152", 8080);
+                        var stream = client.GetStream();
+                        while (webSocket.State == WebSocketState.Open)
+                        {
+                            await stream.ReadAsync(buffer);
+                            await webSocket.SendAsync(buffer, WebSocketMessageType.Binary, true, token);
+                        }
+                    }
+                    else
+                    {
+                        await next();
                     }
                 }
                 else
@@ -80,6 +86,7 @@ namespace LedApi
                     await next();
                 }
             });
+            app.UseFileServer();
             //app.UseHttpsRedirection();
             app.UseMvc();
         }

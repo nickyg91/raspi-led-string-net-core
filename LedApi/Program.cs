@@ -18,6 +18,7 @@ namespace LedApi
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 //.UseKestrel()
+                .UseIISIntegration()
                 .UseStartup<Startup>();
     }
 }

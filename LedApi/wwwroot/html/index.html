@@ -6,11 +6,31 @@
 </head>
 <body>
 <video controls autoplay="autoplay">
-    <source src="wss://localhost:63935/ws" type="video/webm"/>
-    <!--<source src="http://192.168.1.152:8080" />-->
 </video>
 </body>
 </html>
 <script>
-
+    var socket = new WebSocket('ws://localhost:63935/ws');
+    var buffer;
+    var codec = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
+    var mediaSource = new MediaSource();
+    var arr;
+    const video = document.getElementsByTagName('video');
+    video.src = window.URL.createObjectURL(mediaSource);
+    mediaSource.addEventListener('sourceopen', (ev) => {
+        buffer = mediaSource.addSourceBuffer(codec);
+    });
+    socket.onopen = function(event) {
+        
+    };
+    var fileReader = new FileReader();
+    fileReader.onload = function(ev) {
+        arr = ev.target.result;
+    };
+    socket.onmessage = function (event) {
+        //var blob = event.data;
+        //var blob = new Blob(event.data, { type: "video/mp4" });
+        //fileReader.readAsArrayBuffer(event.data);
+        buffer.appendBuffer(blob);
+    }
 </script>
