@@ -1,21 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.DirectoryServices.Protocols;
 using System.Drawing;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Mime;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using LedApi.Classes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Unosquare.RaspberryIO;
-using Unosquare.RaspberryIO.Camera;
 
 namespace LedApi.Controllers
 {
@@ -56,47 +48,14 @@ namespace LedApi.Controllers
             }
         }
 
-        [HttpGet("camera")]
-        public async void GetCameraFeed()
-        {
-            try
-            {
-                var videoSettings = new CameraVideoSettings
-                {
-                    CaptureTimeoutMilliseconds = 0,
-                    CaptureDisplayPreview = false,
-                    ImageFlipVertically = true,
-                    CaptureExposure = CameraExposureMode.Auto,
-                    CaptureWidth = 1280,
-                    CaptureHeight = 720
-                };
+        //[HttpGet("camera")]
+        //public async Task<IActionResult> GetVideoFeed()
+        //{
+        //    var client = new TcpClient("192.168.1.152", 8080);
+        //    //Request.HttpContext.Response.Headers.Add("Content-Type", "video/webm");
+        //    var stream = client.GetStream();
 
-                //IPAddress localAdd = IPAddress.Parse("127.0.0.1");
-                //TcpListener listener = new TcpListener(localAdd, 8081);
-                //Console.WriteLine("Listening...");
-                //listener.Start();
-
-                //---incoming client connected---
-                //var client = listener.AcceptTcpClient();
-
-                //---get the incoming data through a network stream---
-                Pi.Camera.OpenVideoStream(videoSettings,
-                    onDataCallback: async data =>
-                    {
-                        Response.StatusCode = (int) HttpStatusCode.PartialContent;
-                        Response.ContentType = "video/webm";
-                        await Response.Body.WriteAsync(data);
-                    },
-                    onExitCallback: null);
-                Console.WriteLine("Camera started.");
-                Console.WriteLine($"Is it busy? {Pi.Camera.IsBusy}");
-                //return StatusCode((int)HttpStatusCode.PartialContent, await memstream.ReadAsync(bytes));
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"{ex.GetType()}: {ex.Message}");
-                //return StatusCode((int)HttpStatusCode.InternalServerError, ex);
-            }
-        }
+        //    return new FileStreamResult(stream, "video/webm");
+        //}
     }
 }

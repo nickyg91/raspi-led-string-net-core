@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.WebSockets;
+using System.Threading;
 using System.Threading.Tasks;
 using LedApi.Classes;
 using Microsoft.AspNetCore.Builder;
@@ -47,11 +49,37 @@ namespace LedApi
             {
                 app.UseHsts();
             }
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            //app.UseForwardedHeaders(new ForwardedHeadersOptions
+            //{
+            //    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            //});
+            var webSocketOptions = new WebSocketOptions()
             {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-            });
+                KeepAliveInterval = TimeSpan.FromSeconds(120),
+                ReceiveBufferSize = 4 * 1024
+            };
             app.UseFileServer();
+            app.UseWebSockets(webSocketOptions);
+            app.Use(async (http, next) =>
+            {
+                if (http.WebSockets.IsWebSocketRequest)
+                {
+                    var token = CancellationToken.None;
+                    var buffer = new byte[4096];
+                    var webSocket = await http.WebSockets.AcceptWebSocketAsync();
+                    var client = new TcpClient("192.168.1.152", 8080);
+                    var stream = client.GetStream();
+                    while (webSocket.State == WebSocketState.Open)
+                    {
+                        await stream.ReadAsync(buffer);
+                        await webSocket.SendAsync(buffer, WebSocketMessageType.Binary, true, token);
+                    }
+                }
+                else
+                {
+                    await next();
+                }
+            });
             //app.UseHttpsRedirection();
             app.UseMvc();
         }
