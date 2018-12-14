@@ -86,8 +86,8 @@ namespace LedApi
                     await next();
                 }
             });
-            app.UseFileServer();
             //app.UseHttpsRedirection();
+            app.UseStaticFiles();
             app.UseMvc();
         }
     }
