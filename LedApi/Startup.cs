@@ -49,43 +49,43 @@ namespace LedApi
             {
                 app.UseHsts();
             }
-            //app.UseForwardedHeaders(new ForwardedHeadersOptions
-            //{
-            //    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-            //});
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
             var webSocketOptions = new WebSocketOptions()
             {
                 KeepAliveInterval = TimeSpan.FromSeconds(120),
                 ReceiveBufferSize = 4 * 1024
             };
-            app.UseWebSockets(webSocketOptions);
-            app.Use(async (http, next) =>
-            {
-                if (http.Request.Path == "/ws")
-                {
-                    if (http.WebSockets.IsWebSocketRequest)
-                    {
-                        var token = CancellationToken.None;
-                        var buffer = new byte[4096];
-                        var webSocket = await http.WebSockets.AcceptWebSocketAsync();
-                        var client = new TcpClient("192.168.1.152", 8080);
-                        var stream = client.GetStream();
-                        while (webSocket.State == WebSocketState.Open)
-                        {
-                            await stream.ReadAsync(buffer);
-                            await webSocket.SendAsync(buffer, WebSocketMessageType.Binary, true, token);
-                        }
-                    }
-                    else
-                    {
-                        await next();
-                    }
-                }
-                else
-                {
-                    await next();
-                }
-            });
+            //app.UseWebSockets(webSocketOptions);
+            //app.Use(async (http, next) =>
+            //{
+            //    if (http.Request.Path == "/ws")
+            //    {
+            //        if (http.WebSockets.IsWebSocketRequest)
+            //        {
+            //            var token = CancellationToken.None;
+            //            var buffer = new byte[4096];
+            //            var webSocket = await http.WebSockets.AcceptWebSocketAsync();
+            //            var client = new TcpClient("192.168.1.152", 8080);
+            //            var stream = client.GetStream();
+            //            while (webSocket.State == WebSocketState.Open)
+            //            {
+            //                await stream.ReadAsync(buffer);
+            //                await webSocket.SendAsync(buffer, WebSocketMessageType.Binary, true, token);
+            //            }
+            //        }
+            //        else
+            //        {
+            //            await next();
+            //        }
+            //    }
+            //    else
+            //    {
+            //        await next();
+            //    }
+            //});
             //app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseMvc();

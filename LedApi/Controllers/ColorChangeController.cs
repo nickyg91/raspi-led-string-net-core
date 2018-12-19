@@ -8,6 +8,7 @@ using LedApi.Classes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using ws281x.Net;
 
 namespace LedApi.Controllers
 {
@@ -21,23 +22,26 @@ namespace LedApi.Controllers
         {
             _options = options;
         }
-        [HttpGet("{red:int}/{blue:int}/{green:int}")]
-        public IActionResult ChangeColor(int red, int blue, int green)
+        [HttpGet("{green:int}/{red:int}/{blue:int}")]
+        public IActionResult ChangeColor(int green, int red, int blue)
         {
+            Console.WriteLine("Changing color...");
             var color = Color.FromArgb(1, red, green, blue);
             var pin = _options.Value.NeoPixelPin;
             var ledCount = _options.Value.LedCount;
             try
             {
-                var neoPixel = new ws281x.Net.Neopixel(ledCount, pin, rpi_ws281x.WS2811_STRIP_GRB);
+                var neoPixel = new 
+                    Neopixel(ledCount, pin, rpi_ws281x.WS2811_STRIP_GRB, invert: true);
                 
                 neoPixel.Begin();
                 for (var i = 0; i < neoPixel.GetNumberOfPixels(); i++)
                 {
-                    neoPixel.SetPixelColor(i, Color.Blue);
+                    neoPixel.SetPixelColor(i, color);
                 }
                 //neoPixel.Dispose();
-                return Ok("test");
+                neoPixel.Show();
+                return Ok();
             }
             catch (Exception ex)
             {

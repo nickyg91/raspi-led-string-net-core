@@ -25,10 +25,23 @@
             </div>
             <div class="columns is-centered">
                 <div class="column is-half">
-                    <button class="button is-primary is-large is-fullwidth">
+                    <button @click="setColor" class="button is-primary is-large is-fullwidth">
                         Apply
                     </button>
                 </div>
+            </div>
+            <div class="columns is-centered">
+                <div class="column is-half">
+                    {{statusMessage}}
+                </div>
+            </div>
+            <div class="columns is-centered">
+                <!-- <video-player class="video-player-box"
+                    ref="videoPlayer"
+                    :options="playerOptions"
+                    :playsinline="true">
+                </video-player> -->
+                <img controls src="http://192.168.1.157:8080/stream/video.mjpeg"/>
             </div>
         </div>
     </section>
@@ -37,18 +50,37 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Chrome } from 'vue-color';
+import LedService from '../services/led.service';
 import Component from 'vue-class-component';
+import { videoPlayer } from 'vue-video-player';
 @Component({
     components: {
-        'chrome-picker': Chrome
-    }
+        'chrome-picker': Chrome,
+        videoPlayer,
+    },
 })
 export default class Home extends Vue {
-    color =  { r: 255, g: 0, b: 0 };
-    displayColor: string = '';
-    updateValue(val: any): void {
+    public playerOptions = {
+        sources: [{
+            type: 'video/mp4',
+            src: 'http://192.168.1.157:8090/',
+        }],
+    };
+    public ledService = new LedService();
+    public color =  { r: 255, g: 0, b: 0 };
+    public displayColor: string = '';
+    public statusMessage: string = '';
+    public updateValue(val: any): void {
         this.color = val.rgba;
         this.displayColor = val.rgba;
+    }
+    public async setColor() {
+        try {
+            await this.ledService.setLedColors(Number(this.color.g), Number(this.color.b), Number(this.color.r));
+            this.statusMessage = 'Success!';
+        } catch (ex) {
+            this.statusMessage = 'Error :(';
+        }
     }
 }
 </script>
